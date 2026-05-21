@@ -39,14 +39,15 @@ public class UserServiceImplementation implements UserService {
 
 		User user = userRepository.findByEmail(email);
 
-//		int projectSize=projectService.getProjectsByTeam(user,null,null).size();
-//		user.setProjectSize(projectSize);
-
-		userRepository.save(user);
-
 		if (user == null) {
 			throw new UserException("user not exist with email " + email);
 		}
+
+//  int projectSize=projectService.getProjectsByTeam(user,null,null).size();
+//  user.setProjectSize(projectSize);
+
+		userRepository.save(user);
+
 		return user;
 	}
 
