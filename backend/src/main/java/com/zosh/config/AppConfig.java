@@ -1,7 +1,6 @@
 package com.zosh.config;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +15,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Configuration
 @EnableWebSecurity
 public class AppConfig {
@@ -29,10 +26,7 @@ public class AppConfig {
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-
-						// ✅ IMPORTANT FIX: allow preflight
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.requestMatchers("/api/**").authenticated()
 						.anyRequest().permitAll()
@@ -47,8 +41,17 @@ public class AppConfig {
 		return request -> {
 			CorsConfiguration cfg = new CorsConfiguration();
 
-			cfg.setAllowedOriginPatterns(Arrays.asList("*")); // ✅ FIX
-			cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+			// ✅ FIX: explicitly list allowed origins instead of wildcard
+			// wildcard "*" + allowCredentials(true) is rejected by browsers
+			cfg.setAllowedOrigins(Arrays.asList(
+					"https://project-management-system-liart-delta.vercel.app",
+					"http://localhost:5173",
+					"http://localhost:3000",
+					"http://localhost:5174"
+			));
+			cfg.setAllowedMethods(Arrays.asList(
+					"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+			));
 			cfg.setAllowedHeaders(Arrays.asList("*"));
 			cfg.setAllowCredentials(true);
 			cfg.setExposedHeaders(Arrays.asList("Authorization"));
