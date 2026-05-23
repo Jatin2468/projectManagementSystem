@@ -39,7 +39,6 @@ export const register = (userData, navigate) => async (dispatch) => {
 
     const user = response.data;
 
-    // ✅ FIX: handle different token keys
     const token = user.jwt || user.token || user.jwtToken;
 
     if (token) {
@@ -48,8 +47,8 @@ export const register = (userData, navigate) => async (dispatch) => {
 
     dispatch(registerSuccess(user));
 
-    // ✅ FIX: redirect after success
-    if (navigate) navigate("/dashboard");
+    // ✅ FIXED: was "/dashboard" which doesn't exist
+    if (navigate) navigate("/");
   } catch (error) {
     console.log("REGISTER ERROR:", error.response?.data || error.message);
     dispatch(registerFailure(error.message));
@@ -80,7 +79,6 @@ export const login = (userData, navigate) => async (dispatch) => {
 
     const user = response.data;
 
-    // ✅ FIX: handle different token keys
     const token = user.jwt || user.token || user.jwtToken;
 
     if (token) {
@@ -89,8 +87,8 @@ export const login = (userData, navigate) => async (dispatch) => {
 
     dispatch(loginSuccess(user));
 
-    // ✅ FIX: redirect after success
-    if (navigate) navigate("/dashboard");
+    // ✅ FIXED: was "/dashboard" which doesn't exist
+    if (navigate) navigate("/");
   } catch (error) {
     console.log("LOGIN ERROR:", error.response?.data || error.message);
     dispatch(loginFailure(error.message));
@@ -101,29 +99,23 @@ export const login = (userData, navigate) => async (dispatch) => {
 
 export const getUser = (token) => {
   return async (dispatch) => {
+    if (!token) {
+      dispatch({ type: GET_USER_FAILURE, payload: "No token" });
+      return;
+    }
+
     dispatch({ type: GET_USER_REQUEST });
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/users/profile`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 10000,
         }
       );
-
-      dispatch({
-        type: GET_USER_SUCCESS,
-        payload: response.data,
-      });
-
-      console.log("USER DATA:", response.data);
+      dispatch({ type: GET_USER_SUCCESS, payload: response.data });
     } catch (error) {
-      console.log("GET USER ERROR:", error.response?.data || error.message);
-      dispatch({
-        type: GET_USER_FAILURE,
-        payload: error.message,
-      });
+      dispatch({ type: GET_USER_FAILURE, payload: error.message });
     }
   };
 };
