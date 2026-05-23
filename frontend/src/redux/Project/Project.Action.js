@@ -1,5 +1,5 @@
 import * as actionTypes from "./ActionTypes";
-import api, { API_BASE_URL } from "@/Api/api";
+import api from "@/Api/api";
 
 // ---------------- FETCH PROJECTS ----------------
 
@@ -16,7 +16,7 @@ export const fetchProjects = ({ category, tag } = {}) => {
 
       dispatch({
         type: actionTypes.FETCH_PROJECTS_SUCCESS,
-        payload: response.data, // ✅ FIXED
+        payload: response.data,
       });
     } catch (error) {
       dispatch({
@@ -39,7 +39,7 @@ export const searchProjects = (keyword) => {
 
       dispatch({
         type: actionTypes.SEARCH_PROJECT_SUCCESS,
-        payload: response.data, // ✅ FIXED
+        payload: response.data,
       });
     } catch (error) {
       dispatch({
@@ -56,17 +56,13 @@ export const createProject = (projectData) => {
   return async (dispatch) => {
     dispatch({ type: actionTypes.CREATE_PROJECT_REQUEST });
     try {
-      const response = await api.post(
-        `${API_BASE_URL}/api/projects`,
-        projectData
-      );
+      const response = await api.post("/api/projects", projectData); // ✅ FIXED - removed API_BASE_URL
 
       dispatch({
         type: actionTypes.CREATE_PROJECT_SUCCESS,
-        payload: response.data, // ✅ FIXED
+        payload: response.data,
       });
 
-      // 🔥 MOST IMPORTANT FIX
       dispatch(fetchProjects({}));
 
     } catch (error) {
@@ -86,16 +82,15 @@ export const updateProject = ({ projectId, updatedData }) => {
     dispatch({ type: actionTypes.UPDATE_PROJECT_REQUEST });
     try {
       const response = await api.put(
-        `${API_BASE_URL}/api/projects/${projectId}`,
+        `/api/projects/${projectId}`,  // ✅ FIXED - removed API_BASE_URL
         updatedData
       );
 
       dispatch({
         type: actionTypes.UPDATE_PROJECT_SUCCESS,
-        payload: response.data, // ✅ FIXED
+        payload: response.data,
       });
 
-      // refresh list
       dispatch(fetchProjects({}));
 
     } catch (error) {
@@ -118,7 +113,7 @@ export const fetchProjectById = (id) => {
 
       dispatch({
         type: actionTypes.FETCH_PROJECT_BY_Id_SUCCESS,
-        payload: response.data, // ✅ FIXED
+        payload: response.data,
       });
     } catch (error) {
       dispatch({
@@ -139,10 +134,9 @@ export const deleteProject = ({ projectId }) => {
 
       dispatch({
         type: actionTypes.DELETE_PROJECT_SUCCESS,
-        payload: projectId, // ✅ FIXED
+        payload: projectId,
       });
 
-      // refresh list
       dispatch(fetchProjects({}));
 
     } catch (error) {
@@ -187,7 +181,7 @@ export const acceptInvitation = ({ invitationToken, navigate, jwt }) => {
         "/api/projects/accept_invitation",
         {
           params: { token: invitationToken },
-          headers: { Authorization: `Bearer ${jwt}` }, // ✅ explicitly pass JWT
+          headers: { Authorization: `Bearer ${jwt}` },
         }
       );
       navigate(`/project/${data.projectId}`);
